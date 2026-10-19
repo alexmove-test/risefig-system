@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>RiseFig — моя система</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <strong class="logo">🌱 RiseFig</strong>
+    <nav>
+      <a href="#program">Программа</a><a href="#modes">День</a><a href="#report">Отчёт</a><a href="#first">Первый шаг</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+<section class="hero card">
+  <h1>Не мотивация, а система</h1>
+  <p>Мне не хватает не мотивации продолжать, а системы, в которой я понимаю, куда иду, чему учусь и почему выполняю конкретную задачу.</p>
+  <p>Сейчас я во многом действую как разработчик, который пытается построить игру. А мне нужна ещё роль <b>исследователя и предпринимателя</b>, который последовательно учится создавать игры, способные привлекать игроков и приносить деньги.</p>
+  <p>RiseFig — учебно-предпринимательский проект на <b>6 недель</b>, после которых я оцениваю результаты и составляю следующий этап.</p>
+  <div class="progress-box">
+    <div class="progress-label">Прогресс программы: <span id="progText">0 / 6</span></div>
+    <div class="progress"><div id="progBar"></div></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Цикл</h2>
+  <ol class="cycle"><li>Изучить</li><li>Гипотеза</li><li>Сделать</li><li>Проверить</li></ol>
+  <p class="question">Вместо «сегодня я должен продвинуть игру» — вопрос:<br><b>«Какую неопределённость я сегодня уменьшу?»</b></p>
+  <p>Например, можно потратить пять часов на красивую анимацию растения. А можно за 40 минут выяснить, действительно ли игроку интересно выращивать растение за победы в маджонге. Второе иногда гораздо ценнее.</p>
+  <p class="muted">Это соответствует итеративному подходу в геймдизайне: концепция, прототип, игровой тест, оценка результатов.</p>
+</section>
+
+<section id="program">
+  <h2>Программа RiseFig: первые 6 недель</h2>
+  <p class="muted">Это не жёсткий график. Если служба или усталость не позволяют заниматься, неделя может растянуться на две. Важна последовательность этапов.</p>
+  <div id="weeks"></div>
+  <p class="note">Пять игроков — это качественное исследование, а не статистическое доказательство востребованности. Позднее подключу удержание D1/D7, воронку первых сессий, рекламу и доход. Удержание — одна из ключевых метрик мобильных игр, что подтверждается исследованиями <a href="https://www.gameanalytics.com/reports/2025-mobile-gaming-benchmarks" target="_blank" rel="noopener">GameAnalytics</a>.</p>
+</section>
+
+<section id="modes" class="card">
+  <h2>Система работы на каждый день</h2>
+  <p>Три режима, чтобы не пытаться ежедневно совершать подвиг. Выбери режим по силам:</p>
+  <div class="modes" id="modeBtns"></div>
+  <div id="modeBody" class="mode-body"></div>
+  <p class="rule">Главное правило: вечер заканчивается не тогда, когда кончились силы, а когда выполнена заранее определённая небольшая задача.</p>
+
+  <h3>Дневник</h3>
+  <form id="dayForm" class="form">
+    <div class="row">
+      <label>Дата<input type="date" name="date" required></label>
+      <label>Режим<select name="mode"></select></label>
+    </div>
+    <label>Небольшая задача на сегодня<input name="task" required placeholder="Одна конкретная задача"></label>
+    <label>Какую неопределённость уменьшил<textarea name="uncert" rows="2"></textarea></label>
+    <label class="check"><input type="checkbox" name="done"> Выполнено</label>
+    <button class="btn primary">Добавить запись</button>
+  </form>
+  <ul id="dayList" class="entries"></ul>
+</section>
+
+<section id="report" class="card">
+  <h2>Еженедельный отчёт</h2>
+  <p class="muted">Продвижение измеряется не только количеством кода или заработанных денег. Раз в неделю — 4 вопроса.</p>
+  <form id="repForm" class="form">
+    <label>Дата<input type="date" name="date" required></label>
+    <label>Чему я научился?<textarea name="q1" rows="2"></textarea></label>
+    <label>Что я проверил?<textarea name="q2" rows="2"></textarea></label>
+    <label>Что узнал о своей игре или игроках?<textarea name="q3" rows="2"></textarea></label>
+    <label>Какой следующий шаг?<textarea name="q4" rows="2"></textarea></label>
+    <div class="row-btns">
+      <button class="btn primary">Сохранить отчёт</button>
+      <button type="button" class="btn" id="copyRep">Скопировать отчёт</button>
+    </div>
+  </form>
+  <ul id="repList" class="entries"></ul>
+</section>
+
+<section id="first" class="card">
+  <h2>Что сделать первым</h2>
+  <p>Не программировать следующую функцию. А провести небольшую учебную сессию: разобраться, <b>почему люди возвращаются в одни игры, а из других уходят через пять минут</b>.</p>
+  <p>Материал: <a href="https://unity.com/resources/game-designer-playbook" target="_blank" rel="noopener">The Unity Game Designer Playbook</a> — руководство по проектированию, прототипированию и тестированию игрового процесса.</p>
+  <p>После изучения — не просто прочитанная теория, а практическое применение к Mahjong Rise и будущей RiseFig.</p>
+</section>
+
+<section class="card closing">
+  <p>В этой системе даже неудачный эксперимент приносит результат в виде знаний. Если гипотеза не подтвердилась — я не потерял неделю вслепую, а получил основание изменить проект.</p>
+  <p>Не бесконечная борьба с огромной игрой, а понятный образовательный путь: сегодня изучил принцип, завтра применил, затем проверил, а через месяц вижу накопленные результаты.</p>
+  <p><b>Ближняя цель — становиться человеком, который умеет систематически исследовать, создавать, проверять и продавать собственные игры.</b></p>
+</section>
+
+<section class="card">
+  <h2>Данные</h2>
+  <p class="muted">Всё хранится в этом браузере. Экспортируй файл, чтобы перенести данные на другое устройство.</p>
+  <div class="row-btns">
+    <button class="btn" id="exportBtn">Экспорт JSON</button>
+    <label class="btn">Импорт JSON<input type="file" id="importFile" accept=".json,application/json" hidden></label>
+    <button class="btn danger" id="resetBtn">Сбросить всё</button>
+  </div>
+</section>
+</main>
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
