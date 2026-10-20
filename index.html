@@ -11,12 +11,14 @@
 <header class="top">
   <div class="wrap">
     <strong class="logo">🌱 RiseFig</strong>
-    <nav>
-      <a href="#program">Программа</a><a href="#modes">День</a><a href="#report">Отчёт</a><a href="#first">Первый шаг</a><a href="#tasks">Доработка</a>
+    <nav class="tabs" role="tablist">
+      <button type="button" class="tab on" data-tab="sys">Система</button><button type="button" class="tab" data-tab="dev">Доработка Rise Fig</button>
     </nav>
   </div>
 </header>
 <main class="wrap">
+<div id="pane-sys" class="pane">
+<nav class="subnav"><a href="#program">Программа</a><a href="#modes">День</a><a href="#report">Отчёт</a><a href="#first">Первый шаг</a></nav>
 <section class="hero card">
   <h1>Не мотивация, а система</h1>
   <p>Мне не хватает не мотивации продолжать, а системы, в которой я понимаю, куда иду, чему учусь и почему выполняю конкретную задачу.</p>
@@ -94,12 +96,29 @@
   <p><b>Ближняя цель — становиться человеком, который умеет систематически исследовать, создавать, проверять и продавать собственные игры.</b></p>
 </section>
 
-<section id="tasks">
-  <h2>Доработка Rise Fig</h2>
-  <div class="progress-box"><div class="progress-label">Выполнено задач: <span id="taskText">0</span></div><div class="progress"><div id="taskBar"></div></div></div>
-  <div id="taskGroups"></div>
-</section>
 
+</div>
+<div id="pane-dev" class="pane" hidden>
+<section id="tasks" class="card">
+  <h1>Доработка Rise Fig</h1>
+  <p class="muted">Список действий по Telegram Mini App (@Risefig_bot), сайту risefig.com, продвижению в Steemit и концепции игры. Жёлтая метка — делаю я сам, зелёная — ведёт помощник.</p>
+  <div class="progress-box"><div class="progress-label">Выполнено задач: <span id="taskText">0</span></div><div class="progress"><div id="taskBar"></div></div></div>
+  <div class="row-btns" style="margin-top:12px"><button type="button" class="btn" id="hideDone">Скрыть выполненные</button></div>
+</section>
+<div id="taskGroups"></div>
+<section class="card">
+  <h2>Добавить свою задачу</h2>
+  <form id="taskForm" class="form">
+    <label>Задача<input name="text" required placeholder="Что нужно сделать"></label>
+    <div class="row">
+      <label>Группа<select name="group"></select></label>
+      <label>Кто делает<input name="owner" value="Алексей" list="owners"></label>
+    </div>
+    <datalist id="owners"><option value="Алексей"><option value="Telegram App"><option value="Steemit Web Site"><option value="Продвижение в Steemit"><option value="Концепция"></datalist>
+    <button class="btn primary">Добавить</button>
+  </form>
+</section>
+</div>
 <section class="card">
   <h2>Данные</h2>
   <p class="muted">Всё хранится в этом браузере. Экспортируй файл, чтобы перенести данные на другое устройство.</p>
