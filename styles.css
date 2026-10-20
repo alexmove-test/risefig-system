@@ -50,3 +50,10 @@ input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;transition:.3s;pointer-events:none}
 .toast.show{opacity:1}
 @media (max-width:560px){.row{grid-template-columns:1fr}.modes{grid-template-columns:1fr}h1{font-size:24px}.top nav{gap:10px}}
+
+.tgroup h4{margin:16px 0 6px;font-size:15px}
+.tlist{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.tlist .check{align-items:flex-start!important;font-size:14px}.tlist .check input{margin-top:4px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;background:var(--accent2);color:var(--muted);white-space:nowrap}
+.tag.me{background:#f5d76e;color:#5a4500}
+#taskBar{height:100%;width:0;background:var(--accent)}
