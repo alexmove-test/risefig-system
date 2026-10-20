@@ -57,3 +57,15 @@ input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border
 .tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;background:var(--accent2);color:var(--muted);white-space:nowrap}
 .tag.me{background:#f5d76e;color:#5a4500}
 #taskBar{height:100%;width:0;background:var(--accent)}
+.tabs{display:flex;gap:6px}
+.tab{font:inherit;font-size:14px;padding:7px 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.subnav{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;margin-bottom:14px}.subnav a{color:var(--muted);text-decoration:none}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.ghead h3{margin:0}
+.gcount{font-weight:700;color:var(--accent);white-space:nowrap}
+.progress.small{height:6px;margin:8px 0}.gbar{height:100%;width:0;background:var(--accent);transition:width .3s}
+.rules ul{margin:4px 0;padding-left:20px}
+.tlist li{display:flex;justify-content:space-between;gap:6px}.tlist li.done span{color:var(--muted)}
+.tlist .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px}
+.hide-done .tlist li.done{display:none}
+@media (max-width:560px){.tab{padding:6px 10px;font-size:13px}}
