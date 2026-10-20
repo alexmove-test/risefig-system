@@ -14,7 +14,7 @@ var MODES={
  normal:{name:'Обычный день',time:'40–60 минут',items:['Выбрать один небольшой шаг текущей недели программы.','Сформулировать, какую неопределённость он уменьшает.','Сделать этот шаг или проверить одну маленькую гипотезу.','Записать результат в дневник.']},
  high:{name:'Есть энергия',time:'2–3 часа',items:['Собрать кусок прототипа или провести тестовую сессию с игроком.','Пройти полный мини-цикл: изучить → гипотеза → сделать → проверить.','Зафиксировать выводы и следующий шаг.','Остановиться, когда задача выполнена, — не «пока есть силы».']}
 };
-function def(){return {weeks:WEEKS.map(function(){return {done:false,notes:'',result:''};}),mode:'normal',days:[],reports:[]};}
+function def(){return {weeks:WEEKS.map(function(){return {done:false,notes:'',result:''};}),mode:'normal',days:[],reports:[],tasks:{}};}
 var S;
 try{S=JSON.parse(localStorage.getItem(KEY))||def();}catch(e){S=def();}
 function norm(){var d=def();for(var k in d)if(S[k]===undefined)S[k]=d[k];while(S.weeks.length<6)S.weeks.push({done:false,notes:'',result:''});}
@@ -80,6 +80,20 @@ function init(){
  $('#resetBtn').onclick=function(){if(confirm('Удалить все данные? Сначала лучше сделать экспорт.')){S=def();save();all();toast('Данные сброшены');}};
  all();
 }
-function all(){renderWeeks();renderModes();renderDays();renderReps();var df=$('#dayForm');if(df)df.mode.value=S.mode;}
+function renderTasks(){
+ var G=window.RISEFIG_TASKS||[],box=$('#taskGroups');if(!box)return;box.innerHTML='';var tot=0,dn=0;
+ G.forEach(function(g){var c=el('div',{'class':'week tgroup'});c.appendChild(el('h3',null,g.title));
+  c.appendChild(el('div',{'class':'res'},'Ответственный: '+g.owner));
+  if(g.note)c.appendChild(el('p',{'class':'note'},g.note));
+  if(g.rules)c.appendChild(el('p',{'class':'note'},'Правила: '+g.rules));
+  g.sub.forEach(function(sg){c.appendChild(el('h4',null,sg.title));var ul=el('ul',{'class':'tlist'});
+   sg.items.forEach(function(it){tot++;var id=it[0],own=it[2]||g.owner;if(S.tasks[id])dn++;
+    var li=el('li');var lab=el('label',{'class':'check'});var cb=el('input',{type:'checkbox'});cb.checked=!!S.tasks[id];
+    cb.onchange=function(){if(cb.checked)S.tasks[id]=1;else delete S.tasks[id];save();renderTasks();};
+    lab.appendChild(cb);var sp=el('span',null,it[1]+' ');sp.appendChild(el('span',{'class':'tag'+(own==='Алексей'?' me':'')},own));lab.appendChild(sp);li.appendChild(lab);ul.appendChild(li);});
+   c.appendChild(ul);});box.appendChild(c);});
+ $('#taskText').textContent=dn+' / '+tot;$('#taskBar').style.width=(tot?dn/tot*100:0)+'%';
+}
+function all(){renderTasks();renderWeeks();renderModes();renderDays();renderReps();var df=$('#dayForm');if(df)df.mode.value=S.mode;}
 init();
 })();
