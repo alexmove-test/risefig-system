@@ -1,11 +1,11 @@
 RiseFig — личная система (статичный сайт)
 
-Файлы: index.html, styles.css, app.js (preview.png не обязателен).
+Файлы: index.html, styles.css, app.js, tasks.js (preview.png не обязателен).
 
 Как загрузить на домен:
 1. Зайди в панель хостинга (файловый менеджер) или подключись по FTP (например, FileZilla).
 2. Открой корневую папку домена — обычно public_html, www или htdocs.
-3. Загрузи туда index.html, styles.css и app.js (в одну папку, без подпапок).
+3. Загрузи туда index.html, styles.css, app.js и tasks.js (в одну папку, без подпапок).
 4. Открой свой домен в браузере — сайт готов. Работает и на любом статичном хостинге
    (Netlify, GitHub Pages, Cloudflare Pages): просто перетащи папку.
 
