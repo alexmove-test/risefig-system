@@ -14,10 +14,10 @@ var MODES={
  normal:{name:'Обычный день',time:'40–60 минут',items:['Выбрать один небольшой шаг текущей недели программы.','Сформулировать, какую неопределённость он уменьшает.','Сделать этот шаг или проверить одну маленькую гипотезу.','Записать результат в дневник.']},
  high:{name:'Есть энергия',time:'2–3 часа',items:['Собрать кусок прототипа или провести тестовую сессию с игроком.','Пройти полный мини-цикл: изучить → гипотеза → сделать → проверить.','Зафиксировать выводы и следующий шаг.','Остановиться, когда задача выполнена, — не «пока есть силы».']}
 };
-function def(){return {weeks:WEEKS.map(function(){return {done:false,notes:'',result:''};}),mode:'normal',days:[],reports:[],tasks:{}};}
+function def(){return {weeks:WEEKS.map(function(){return {done:false,notes:'',result:''};}),mode:'normal',days:[],reports:[],tasks:{},myTasks:[],hideDone:false,tab:'sys'};}
 var S;
 try{S=JSON.parse(localStorage.getItem(KEY))||def();}catch(e){S=def();}
-function norm(){var d=def();for(var k in d)if(S[k]===undefined)S[k]=d[k];while(S.weeks.length<6)S.weeks.push({done:false,notes:'',result:''});}
+function norm(){var d=def();for(var k in d)if(S[k]===undefined)S[k]=d[k];if(!Array.isArray(S.myTasks))S.myTasks=[];if(!S.tasks||typeof S.tasks!=='object')S.tasks={};while(S.weeks.length<6)S.weeks.push({done:false,notes:'',result:''});}
 norm();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 function $(s){return document.querySelector(s);}
@@ -80,20 +80,44 @@ function init(){
  $('#resetBtn').onclick=function(){if(confirm('Удалить все данные? Сначала лучше сделать экспорт.')){S=def();save();all();toast('Данные сброшены');}};
  all();
 }
+function taskRow(id,text,own,del){
+ var li=el('li',{'class':S.tasks[id]?'done':''});var lab=el('label',{'class':'check'});var cb=el('input',{type:'checkbox'});cb.checked=!!S.tasks[id];
+ cb.onchange=function(){if(cb.checked)S.tasks[id]=1;else delete S.tasks[id];save();renderTasks();};
+ lab.appendChild(cb);var sp=el('span',null,text+' ');sp.appendChild(el('span',{'class':'tag'+(own==='Алексей'?' me':'')},own));lab.appendChild(sp);li.appendChild(lab);
+ if(del)li.appendChild(del);return li;}
 function renderTasks(){
  var G=window.RISEFIG_TASKS||[],box=$('#taskGroups');if(!box)return;box.innerHTML='';var tot=0,dn=0;
- G.forEach(function(g){var c=el('div',{'class':'week tgroup'});c.appendChild(el('h3',null,g.title));
-  c.appendChild(el('div',{'class':'res'},'Ответственный: '+g.owner));
+ box.classList.toggle('hide-done',!!S.hideDone);var hb=$('#hideDone');if(hb)hb.textContent=S.hideDone?'Показать выполненные':'Скрыть выполненные';
+ var groups=G.map(function(g){return {id:g.id,title:g.title,owner:g.owner,note:g.note,rules:g.rules,sub:g.sub.slice()};});
+ groups.push({id:'my',title:'Мои задачи',owner:'Алексей',sub:[]});
+ S.myTasks.forEach(function(t,i){var g=groups.filter(function(x){return x.id===t.group;})[0]||groups[groups.length-1];
+  var sg=g.sub.filter(function(s){return s.mine;})[0];if(!sg){sg={title:'Добавлено мной',mine:true,items:[]};g.sub.push(sg);}sg.items.push([t.id,t.text,t.owner||'Алексей',i]);});
+ groups.forEach(function(g){if(g.id==='my'&&!g.sub.length)return;var gt=0,gd=0;
+  var c=el('section',{'class':'week tgroup'});var h=el('div',{'class':'ghead'});h.appendChild(el('h3',null,g.title));var cnt=el('span',{'class':'gcount'});h.appendChild(cnt);c.appendChild(h);
+  var pb=el('div',{'class':'progress small'});var bar=el('div',{'class':'gbar'});pb.appendChild(bar);c.appendChild(pb);
   if(g.note)c.appendChild(el('p',{'class':'note'},g.note));
-  if(g.rules)c.appendChild(el('p',{'class':'note'},'Правила: '+g.rules));
+  if(g.rules){var r=el('div',{'class':'note rules'});r.appendChild(el('b',null,'Правила: '));var ul0=el('ul');[].concat(g.rules).forEach(function(x){ul0.appendChild(el('li',null,x));});r.appendChild(ul0);c.appendChild(r);}
   g.sub.forEach(function(sg){c.appendChild(el('h4',null,sg.title));var ul=el('ul',{'class':'tlist'});
-   sg.items.forEach(function(it){tot++;var id=it[0],own=it[2]||g.owner;if(S.tasks[id])dn++;
-    var li=el('li');var lab=el('label',{'class':'check'});var cb=el('input',{type:'checkbox'});cb.checked=!!S.tasks[id];
-    cb.onchange=function(){if(cb.checked)S.tasks[id]=1;else delete S.tasks[id];save();renderTasks();};
-    lab.appendChild(cb);var sp=el('span',null,it[1]+' ');sp.appendChild(el('span',{'class':'tag'+(own==='Алексей'?' me':'')},own));lab.appendChild(sp);li.appendChild(lab);ul.appendChild(li);});
-   c.appendChild(ul);});box.appendChild(c);});
+   sg.items.forEach(function(it){gt++;if(S.tasks[it[0]])gd++;var del=null;
+    if(sg.mine){var idx=it[3];del=delBtn(S.myTasks,idx,function(){delete S.tasks[it[0]];save();renderTasks();});}
+    ul.appendChild(taskRow(it[0],it[1],it[2]||g.owner,del));});
+   c.appendChild(ul);});
+  cnt.textContent=gd+' / '+gt;bar.style.width=(gt?gd/gt*100:0)+'%';if(gt&&gd===gt)c.classList.add('done');
+  tot+=gt;dn+=gd;box.appendChild(c);});
  $('#taskText').textContent=dn+' / '+tot;$('#taskBar').style.width=(tot?dn/tot*100:0)+'%';
+ var sel=$('#taskForm')&&$('#taskForm').group;if(sel&&!sel.options.length){groups.forEach(function(g){sel.appendChild(el('option',{value:g.id},g.title));});sel.value='my';}
+}
+function setTab(t){S.tab=t;save();['sys','dev'].forEach(function(k){$('#pane-'+k).hidden=(k!==t);});
+ [].forEach.call(document.querySelectorAll('.tab'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===t);});window.scrollTo(0,0);}
+function initTasks(){
+ [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){setTab(b.getAttribute('data-tab'));};});
+ [].forEach.call(document.querySelectorAll('.subnav a'),function(){});
+ $('#hideDone').onclick=function(){S.hideDone=!S.hideDone;save();renderTasks();};
+ var tf=$('#taskForm');tf.onsubmit=function(e){e.preventDefault();var tx=tf.text.value.trim();if(!tx)return;
+  S.myTasks.push({id:'u'+Date.now().toString(36),text:tx,group:tf.group.value,owner:tf.owner.value.trim()||'Алексей'});save();tf.text.value='';renderTasks();toast('Задача добавлена');};
+ var h=location.hash;setTab(h==='#dev'||h==='#tasks'?'dev':(S.tab==='dev'?'dev':'sys'));
 }
 function all(){renderTasks();renderWeeks();renderModes();renderDays();renderReps();var df=$('#dayForm');if(df)df.mode.value=S.mode;}
+initTasks();
 init();
 })();
