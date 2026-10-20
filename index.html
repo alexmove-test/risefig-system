@@ -12,7 +12,7 @@
   <div class="wrap">
     <strong class="logo">🌱 RiseFig</strong>
     <nav>
-      <a href="#program">Программа</a><a href="#modes">День</a><a href="#report">Отчёт</a><a href="#first">Первый шаг</a>
+      <a href="#program">Программа</a><a href="#modes">День</a><a href="#report">Отчёт</a><a href="#first">Первый шаг</a><a href="#tasks">Доработка</a>
     </nav>
   </div>
 </header>
@@ -94,6 +94,12 @@
   <p><b>Ближняя цель — становиться человеком, который умеет систематически исследовать, создавать, проверять и продавать собственные игры.</b></p>
 </section>
 
+<section id="tasks">
+  <h2>Доработка Rise Fig</h2>
+  <div class="progress-box"><div class="progress-label">Выполнено задач: <span id="taskText">0</span></div><div class="progress"><div id="taskBar"></div></div></div>
+  <div id="taskGroups"></div>
+</section>
+
 <section class="card">
   <h2>Данные</h2>
   <p class="muted">Всё хранится в этом браузере. Экспортируй файл, чтобы перенести данные на другое устройство.</p>
@@ -105,6 +111,7 @@
 </section>
 </main>
 <div id="toast" class="toast"></div>
+<script src="tasks.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
