@@ -119,7 +119,22 @@
   </form>
 </section>
 </div>
-<section class="card">
+<section class="card" id="sync">
+  <h2>Синхронизация</h2>
+  <p class="note">Галочки, дневник и отчёты будут одинаковыми на ПК и телефоне. Код храни в секрете: любой, у кого он есть, может видеть и менять твои данные.</p>
+  <div id="syncOff">
+   <p><button class="btn" id="syncNew" type="button">Создать код (первое устройство)</button></p>
+   <p>Уже есть код с другого устройства? Вставь его:</p>
+   <p><input id="syncInput" placeholder="rf-..." style="width:100%;max-width:420px"> <button class="btn" id="syncJoin" type="button">Подключить</button></p>
+  </div>
+  <div id="syncOn" hidden>
+   <p>Твой код синхронизации:</p>
+   <p><input id="syncCode" readonly style="width:100%;max-width:420px"> <button class="btn" id="syncCopy" type="button">Скопировать</button></p>
+   <p><button class="btn" id="syncNow" type="button">Синхронизировать сейчас</button> <button class="btn danger" id="syncOffBtn" type="button">Отключить</button></p>
+  </div>
+  <p id="syncStatus" class="sync-st"></p>
+ </section>
+ <section class="card">
   <h2>Данные</h2>
   <p class="muted">Всё хранится в этом браузере. Экспортируй файл, чтобы перенести данные на другое устройство.</p>
   <div class="row-btns">
