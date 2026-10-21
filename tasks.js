@@ -96,7 +96,7 @@ window.RISEFIG_TASKS=[
   ['r6','Поиск, фильтры по виду и редкости, сортировка по цене.'],
   ['r7','История сделок и уведомление продавцу о продаже.'],
   ['r8','Протестировать: выставить лот с сайта и купить его из Telegram и наоборот.','Алексей']]}]},
-{id:'kolhoz',title:'Колхоз',owner:'Telegram App + Steemit Web Site',
+{id:'kolhoz',title:'Колхоз',disabled:true,owner:'Telegram App + Steemit Web Site',
  note:'Связано: Концепция 16 (колхоз и подарки семян), Мультиплеер 8.',
  sub:[
  {title:'Основа',items:[
@@ -127,3 +127,4 @@ window.RISEFIG_TASKS=[
   ['s3','Убрать заглушки: Steem-вход (сейчас плейсхолдер), покупка очков (сейчас «скоро»), задание «вода за рекламу» (сейчас «Soon»; сюда и встанет AppLixir).','Steemit Web Site'],
   ['s4','Добавить ads.txt, если AppLixir его потребует.','Steemit Web Site']]}]}
 ];
+window.RISEFIG_DISABLED_TASKS=['c16'];
