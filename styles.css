@@ -77,3 +77,7 @@ input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border
 .off-tag{text-decoration:none!important;background:#888!important;color:#fff!important;margin-left:6px}
 
 .sync-st{font-size:.9em;opacity:.85}.sync-st.ok{color:#2e9d5b}.sync-st.err{color:#d64545}
+.hide-post .tlist li.off{display:none}
+.tlist li{position:relative}.tlist li.off .pbtn{opacity:1;filter:none}
+.pbtn{display:inline-block;margin:6px 0 0 26px;min-height:36px;padding:6px 12px;font-size:13px;border-radius:8px;border:1px solid #999;background:transparent;color:inherit;cursor:pointer}
+li.upost{opacity:.6}li.upost .pbtn{pointer-events:auto}
