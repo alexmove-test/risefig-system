@@ -123,12 +123,12 @@ function all(){renderTasks();renderWeeks();renderModes();renderDays();renderReps
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
 function ikey(x){return x&&x.u?x.u:(x&&x.id?x.id:JSON.stringify(x));}
 function mergeState(a,b){ // a=local, b=remote
- var o=JSON.parse(JSON.stringify(a));if(!b||typeof b!=='object')return o;
+ var o=JSON.parse(JSON.stringify(a));if(!b||typeof b!=='object')return o;for(var uk in b)if(o[uk]===undefined)o[uk]=JSON.parse(JSON.stringify(b[uk]));
  var del={};[a.del||{},b.del||{}].forEach(function(d){for(var k in d)del[k]=Math.max(del[k]||0,d[k]);});o.del=del;
  var at=a.taskTs||{},bt=b.taskTs||{},ids={};[a.tasks||{},b.tasks||{},a.post||{},b.post||{},at,bt].forEach(function(m){for(var k in m)ids[k]=1;});
  o.tasks={};o.post={};o.taskTs={};var ap=a.post||{},bp=b.post||{};
  for(var id in ids){var ta=at[id]||0,tb=bt[id]||0,v;
-  var pv;if(ta===0&&tb===0){v=!!((a.tasks||{})[id]||(b.tasks||{})[id]);pv=!v&&!!(ap[id]||bp[id]);}else if(tb>ta){v=!!(b.tasks||{})[id];pv=!!bp[id];}else{v=!!(a.tasks||{})[id];pv=!!ap[id];}
+  var pv;if(ta===0&&tb===0){v=!!((a.tasks||{})[id]||(b.tasks||{})[id]);pv=!v&&!!(ap[id]||bp[id]);}else if(tb>ta){v=!!(b.tasks||{})[id];pv=!!bp[id];}else if(ta>tb){v=!!(a.tasks||{})[id];pv=!!ap[id];}else{pv=!!(ap[id]||bp[id]);v=!pv&&!!((a.tasks||{})[id]||(b.tasks||{})[id]);}
   if(pv)v=false;if(v)o.tasks[id]=1;if(pv)o.post[id]=1;if(ta||tb)o.taskTs[id]=Math.max(ta,tb);}
  o.weeks=(a.weeks||[]).map(function(w,i){var r=(b.weeks||[])[i];if(!r)return w;var x=w.ts||0,y=r.ts||0;
   if(x||y)return y>x?r:w;return {done:w.done||r.done,notes:(w.notes||'').length>=(r.notes||'').length?w.notes:r.notes,result:(w.result||'').length>=(r.result||'').length?w.result:r.result};});
@@ -138,7 +138,7 @@ function mergeState(a,b){ // a=local, b=remote
 window.RFSync=(function(){
  var SK='risefig-sync',API='https://textdb.dev/api/data/',code=null,t=null,busy=false,again=false;
  try{code=localStorage.getItem(SK);}catch(e){}
- function st(m,c){var e=$('#syncStatus');if(e){e.textContent=m;e.className='sync-st '+(c||'');}}
+ function st(m,c){['#syncStatus','#syncTop'].forEach(function(q){var e=$(q);if(e){e.textContent=(q==='#syncTop'&&code?'Код: '+code.slice(0,7)+'… · ':'')+m;e.className='sync-st '+(c||'');}});}
  function ui(){var on=!!code;var a=$('#syncOn'),b=$('#syncOff');if(!a)return;a.hidden=!on;b.hidden=on;if(on)$('#syncCode').value=code;}
  function get(){return fetch(API+code+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw r.status;return r.text();}).then(function(t){t=(t||'').trim();if(!t)return null;try{return JSON.parse(t);}catch(e){return null;}});}
  function put(o){var x=JSON.parse(JSON.stringify(o));delete x.tab;delete x.hideDone;delete x.hidePost;delete x.mode;
@@ -147,7 +147,7 @@ window.RFSync=(function(){
   var before=JSON.stringify(S);
   return get().then(function(rem){var m=mergeState(S,rem);m.tab=S.tab;m.hideDone=S.hideDone;m.hidePost=S.hidePost;m.mode=S.mode;var ch=JSON.stringify(m)!==before;S=m;norm();save(true);if(ch)all();
    return put(S);})
-  .then(function(){var d=new Date();st('Синхронизировано · '+d.toLocaleTimeString().slice(0,5),'ok');})
+  .then(function(){var d=new Date();st('Синхронизировано · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2),'ok');})
   .catch(function(e){st('Ошибка синхронизации ('+e+'). Данные сохранены на устройстве, повторю позже.','err');})
   .then(function(){busy=false;if(again){again=false;schedule();}});}
  function schedule(){if(!code)return;clearTimeout(t);st('Есть изменения…');t=setTimeout(run,1500);}
@@ -157,8 +157,8 @@ window.RFSync=(function(){
   $('#syncJoin').onclick=function(){connect($('#syncInput').value);};
   $('#syncCopy').onclick=function(){copy(code);};
   $('#syncNow').onclick=function(){run();};
-  $('#syncOffBtn').onclick=function(){if(confirm('Отключить синхронизацию на этом устройстве? Данные останутся здесь.')){code=null;localStorage.removeItem(SK);ui();st('Синхронизация выключена');}};
-  if(code)run();else st('Синхронизация выключена');
+  $('#syncOffBtn').onclick=function(){if(confirm('Отключить синхронизацию на этом устройстве? Данные останутся здесь.')){code=null;localStorage.removeItem(SK);ui();st('Синхронизация не подключена — отметки только на этом устройстве (подключить внизу страницы)','err');}};
+  if(code)run();else st('Синхронизация не подключена — отметки только на этом устройстве (подключить внизу страницы)','err');setInterval(function(){if(code&&!document.hidden)run();},30000);
   window.addEventListener('focus',function(){if(code)run();});
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&code)run();});}
  return {schedule:schedule,run:run,init:init};})();
