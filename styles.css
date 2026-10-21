@@ -75,3 +75,5 @@ input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border
 .tgroup.off input,li.off input{pointer-events:none}
 .tgroup.off .progress{display:none}
 .off-tag{text-decoration:none!important;background:#888!important;color:#fff!important;margin-left:6px}
+
+.sync-st{font-size:.9em;opacity:.85}.sync-st.ok{color:#2e9d5b}.sync-st.err{color:#d64545}
