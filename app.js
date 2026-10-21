@@ -14,10 +14,10 @@ var MODES={
  normal:{name:'Обычный день',time:'40–60 минут',items:['Выбрать один небольшой шаг текущей недели программы.','Сформулировать, какую неопределённость он уменьшает.','Сделать этот шаг или проверить одну маленькую гипотезу.','Записать результат в дневник.']},
  high:{name:'Есть энергия',time:'2–3 часа',items:['Собрать кусок прототипа или провести тестовую сессию с игроком.','Пройти полный мини-цикл: изучить → гипотеза → сделать → проверить.','Зафиксировать выводы и следующий шаг.','Остановиться, когда задача выполнена, — не «пока есть силы».']}
 };
-function def(){return {weeks:WEEKS.map(function(){return {done:false,notes:'',result:''};}),mode:'normal',days:[],reports:[],tasks:{},taskTs:{},del:{},myTasks:[],hideDone:false,tab:'sys'};}
+function def(){return {weeks:WEEKS.map(function(){return {done:false,notes:'',result:''};}),mode:'normal',days:[],reports:[],tasks:{},post:{},taskTs:{},hidePost:false,del:{},myTasks:[],hideDone:false,tab:'sys'};}
 var S;
 try{S=JSON.parse(localStorage.getItem(KEY))||def();}catch(e){S=def();}
-function norm(){var d=def();for(var k in d)if(S[k]===undefined)S[k]=d[k];if(!Array.isArray(S.myTasks))S.myTasks=[];if(!S.tasks||typeof S.tasks!=='object')S.tasks={};if(!S.taskTs||typeof S.taskTs!=='object')S.taskTs={};if(!S.del||typeof S.del!=='object')S.del={};while(S.weeks.length<6)S.weeks.push({done:false,notes:'',result:''});}
+function norm(){var d=def();for(var k in d)if(S[k]===undefined)S[k]=d[k];if(!Array.isArray(S.myTasks))S.myTasks=[];if(!S.tasks||typeof S.tasks!=='object')S.tasks={};if(!S.post||typeof S.post!=='object')S.post={};if(!S.taskTs||typeof S.taskTs!=='object')S.taskTs={};if(!S.del||typeof S.del!=='object')S.del={};while(S.weeks.length<6)S.weeks.push({done:false,notes:'',result:''});}
 norm();
 function save(nosync){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}if(!nosync&&window.RFSync)RFSync.schedule();}
 function $(s){return document.querySelector(s);}
@@ -81,28 +81,30 @@ function init(){
  all();
 }
 function taskRow(id,text,own,del,off,lbl){
- var li=el('li',{'class':(S.tasks[id]?'done':'')+(off?' off':'')});var lab=el('label',{'class':'check'});var cb=el('input',{type:'checkbox'});cb.checked=!!S.tasks[id];if(off){cb.disabled=true;}
- cb.onchange=function(){if(cb.checked)S.tasks[id]=1;else delete S.tasks[id];S.taskTs[id]=Date.now();save();renderTasks();};
+ var pp=!off&&!!S.post[id];var li=el('li',{'class':(S.tasks[id]&&!pp?'done':'')+(off?' off off-sys':'')+(pp?' off upost':'')});var lab=el('label',{'class':'check'});var cb=el('input',{type:'checkbox'});cb.checked=!pp&&!!S.tasks[id];if(off||pp){cb.disabled=true;}
+ cb.onchange=function(){if(cb.checked){S.tasks[id]=1;delete S.post[id];}else delete S.tasks[id];S.taskTs[id]=Date.now();save();renderTasks();};
  lab.appendChild(cb);var sp=el('span',null,text+' ');sp.appendChild(el('span',{'class':'tag'+(own==='Алексей'?' me':'')},own));if(off&&lbl)sp.appendChild(el('span',{'class':'tag off-tag'},'Отложено — вернусь позже'));lab.appendChild(sp);li.appendChild(lab);
+ if(pp)sp.appendChild(el('span',{'class':'tag off-tag'},'Отложено мной'));
+ if(!off){var pb=el('button',{'class':'pbtn',type:'button',title:pp?'Вернуть задачу':'Зачеркнуть / отложить'},pp?'↩ Вернуть':'✕ Отложить');pb.onclick=function(){if(S.post[id])delete S.post[id];else{S.post[id]=1;delete S.tasks[id];}S.taskTs[id]=Date.now();save();renderTasks();};li.appendChild(pb);}
  if(del)li.appendChild(del);return li;}
 function renderTasks(){
  var G=window.RISEFIG_TASKS||[],box=$('#taskGroups');if(!box)return;box.innerHTML='';var tot=0,dn=0;
- box.classList.toggle('hide-done',!!S.hideDone);var hb=$('#hideDone');if(hb)hb.textContent=S.hideDone?'Показать выполненные':'Скрыть выполненные';
+ box.classList.toggle('hide-done',!!S.hideDone);var hb=$('#hideDone');if(hb)hb.textContent=S.hideDone?'Показать выполненные':'Скрыть выполненные';box.classList.toggle('hide-post',!!S.hidePost);var hp=$('#hidePost');if(hp)hp.textContent=S.hidePost?'Показать отложенное':'Скрыть отложенное';
  var groups=G.map(function(g){return {disabled:g.disabled,id:g.id,title:g.title,owner:g.owner,note:g.note,rules:g.rules,sub:g.sub.slice()};});
  groups.push({id:'my',title:'Мои задачи',owner:'Алексей',sub:[]});
  S.myTasks.forEach(function(t,i){var g=groups.filter(function(x){return x.id===t.group;})[0]||groups[groups.length-1];
   var sg=g.sub.filter(function(s){return s.mine;})[0];if(!sg){sg={title:'Добавлено мной',mine:true,items:[]};g.sub.push(sg);}sg.items.push([t.id,t.text,t.owner||'Алексей',i]);});
- groups.forEach(function(g){if(g.id==='my'&&!g.sub.length)return;var gt=0,gd=0;
+ groups.forEach(function(g){if(g.id==='my'&&!g.sub.length)return;var gt=0,gd=0,vis=0;
   var c=el('section',{'class':'week tgroup'+(g.disabled?' off':'')});var h=el('div',{'class':'ghead'});h.appendChild(el('h3',null,g.title));if(g.disabled)h.appendChild(el('span',{'class':'tag off-tag'},'Отложено — вернусь позже'));var cnt=el('span',{'class':'gcount'});h.appendChild(cnt);c.appendChild(h);
   var pb=el('div',{'class':'progress small'});var bar=el('div',{'class':'gbar'});pb.appendChild(bar);c.appendChild(pb);
   if(g.note)c.appendChild(el('p',{'class':'note'},g.note));
   if(g.rules){var r=el('div',{'class':'note rules'});r.appendChild(el('b',null,'Правила: '));var ul0=el('ul');[].concat(g.rules).forEach(function(x){ul0.appendChild(el('li',null,x));});r.appendChild(ul0);c.appendChild(r);}
   g.sub.forEach(function(sg){c.appendChild(el('h4',null,sg.title));var ul=el('ul',{'class':'tlist'});
-   sg.items.forEach(function(it){var off=!!g.disabled||(window.RISEFIG_DISABLED_TASKS||[]).indexOf(it[0])>=0;if(!off){gt++;if(S.tasks[it[0]])gd++;}var del=null;
+   sg.items.forEach(function(it){var off=!!g.disabled||(window.RISEFIG_DISABLED_TASKS||[]).indexOf(it[0])>=0;var hid=(S.hideDone&&S.tasks[it[0]]&&!S.post[it[0]]&&!off)||(S.hidePost&&(off||S.post[it[0]]));if(!hid)vis++;if(!off&&!S.post[it[0]]){gt++;if(S.tasks[it[0]])gd++;}var del=null;
     if(sg.mine){var idx=it[3];del=delBtn(S.myTasks,idx,function(){delete S.tasks[it[0]];S.taskTs[it[0]]=Date.now();save();renderTasks();});}
     ul.appendChild(taskRow(it[0],it[1],it[2]||g.owner,del,off,!g.disabled));});
    c.appendChild(ul);});
-  cnt.textContent=gd+' / '+gt;bar.style.width=(gt?gd/gt*100:0)+'%';if(gt&&gd===gt)c.classList.add('done');
+  cnt.textContent=gd+' / '+gt;bar.style.width=(gt?gd/gt*100:0)+'%';if(gt&&gd===gt)c.classList.add('done');if(!vis&&(S.hideDone||S.hidePost))c.style.display='none';
   tot+=gt;dn+=gd;box.appendChild(c);});
  $('#taskText').textContent=dn+' / '+tot;$('#taskBar').style.width=(tot?dn/tot*100:0)+'%';
  var sel=$('#taskForm')&&$('#taskForm').group;if(sel&&!sel.options.length){groups.forEach(function(g){sel.appendChild(el('option',{value:g.id},g.title));});sel.value='my';}
@@ -112,7 +114,7 @@ function setTab(t){S.tab=t;save();['sys','dev'].forEach(function(k){$('#pane-'+k
 function initTasks(){
  [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){setTab(b.getAttribute('data-tab'));};});
  [].forEach.call(document.querySelectorAll('.subnav a'),function(){});
- $('#hideDone').onclick=function(){S.hideDone=!S.hideDone;save();renderTasks();};
+ $('#hideDone').onclick=function(){S.hideDone=!S.hideDone;save();renderTasks();};var hp=$('#hidePost');if(hp)hp.onclick=function(){S.hidePost=!S.hidePost;save();renderTasks();};
  var tf=$('#taskForm');tf.onsubmit=function(e){e.preventDefault();var tx=tf.text.value.trim();if(!tx)return;
   S.myTasks.push({id:'u'+Date.now().toString(36),text:tx,group:tf.group.value,owner:tf.owner.value.trim()||'Алексей'});save();tf.text.value='';renderTasks();toast('Задача добавлена');};
  var h=location.hash;setTab(h==='#dev'||h==='#tasks'?'dev':(S.tab==='dev'?'dev':'sys'));
@@ -123,11 +125,11 @@ function ikey(x){return x&&x.u?x.u:(x&&x.id?x.id:JSON.stringify(x));}
 function mergeState(a,b){ // a=local, b=remote
  var o=JSON.parse(JSON.stringify(a));if(!b||typeof b!=='object')return o;
  var del={};[a.del||{},b.del||{}].forEach(function(d){for(var k in d)del[k]=Math.max(del[k]||0,d[k]);});o.del=del;
- var at=a.taskTs||{},bt=b.taskTs||{},ids={};[a.tasks||{},b.tasks||{},at,bt].forEach(function(m){for(var k in m)ids[k]=1;});
- o.tasks={};o.taskTs={};
+ var at=a.taskTs||{},bt=b.taskTs||{},ids={};[a.tasks||{},b.tasks||{},a.post||{},b.post||{},at,bt].forEach(function(m){for(var k in m)ids[k]=1;});
+ o.tasks={};o.post={};o.taskTs={};var ap=a.post||{},bp=b.post||{};
  for(var id in ids){var ta=at[id]||0,tb=bt[id]||0,v;
-  if(ta===0&&tb===0)v=!!((a.tasks||{})[id]||(b.tasks||{})[id]);else v=tb>ta?!!(b.tasks||{})[id]:!!(a.tasks||{})[id];
-  if(v)o.tasks[id]=1;if(ta||tb)o.taskTs[id]=Math.max(ta,tb);}
+  var pv;if(ta===0&&tb===0){v=!!((a.tasks||{})[id]||(b.tasks||{})[id]);pv=!v&&!!(ap[id]||bp[id]);}else if(tb>ta){v=!!(b.tasks||{})[id];pv=!!bp[id];}else{v=!!(a.tasks||{})[id];pv=!!ap[id];}
+  if(pv)v=false;if(v)o.tasks[id]=1;if(pv)o.post[id]=1;if(ta||tb)o.taskTs[id]=Math.max(ta,tb);}
  o.weeks=(a.weeks||[]).map(function(w,i){var r=(b.weeks||[])[i];if(!r)return w;var x=w.ts||0,y=r.ts||0;
   if(x||y)return y>x?r:w;return {done:w.done||r.done,notes:(w.notes||'').length>=(r.notes||'').length?w.notes:r.notes,result:(w.result||'').length>=(r.result||'').length?w.result:r.result};});
  ['days','reports','myTasks'].forEach(function(f){var m={},ord=[];[].concat(a[f]||[],b[f]||[]).forEach(function(x){var k=ikey(x);if(del[k])return;
@@ -139,11 +141,11 @@ window.RFSync=(function(){
  function st(m,c){var e=$('#syncStatus');if(e){e.textContent=m;e.className='sync-st '+(c||'');}}
  function ui(){var on=!!code;var a=$('#syncOn'),b=$('#syncOff');if(!a)return;a.hidden=!on;b.hidden=on;if(on)$('#syncCode').value=code;}
  function get(){return fetch(API+code+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw r.status;return r.text();}).then(function(t){t=(t||'').trim();if(!t)return null;try{return JSON.parse(t);}catch(e){return null;}});}
- function put(o){var x=JSON.parse(JSON.stringify(o));delete x.tab;delete x.hideDone;delete x.mode;
+ function put(o){var x=JSON.parse(JSON.stringify(o));delete x.tab;delete x.hideDone;delete x.hidePost;delete x.mode;
   return fetch(API+code,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(x)}).then(function(r){if(!r.ok)throw r.status;});}
  function run(){if(!code)return Promise.resolve();if(busy){again=true;return Promise.resolve();}busy=true;st('Синхронизация…');
   var before=JSON.stringify(S);
-  return get().then(function(rem){var m=mergeState(S,rem);m.tab=S.tab;m.hideDone=S.hideDone;m.mode=S.mode;var ch=JSON.stringify(m)!==before;S=m;norm();save(true);if(ch)all();
+  return get().then(function(rem){var m=mergeState(S,rem);m.tab=S.tab;m.hideDone=S.hideDone;m.hidePost=S.hidePost;m.mode=S.mode;var ch=JSON.stringify(m)!==before;S=m;norm();save(true);if(ch)all();
    return put(S);})
   .then(function(){var d=new Date();st('Синхронизировано · '+d.toLocaleTimeString().slice(0,5),'ok');})
   .catch(function(e){st('Ошибка синхронизации ('+e+'). Данные сохранены на устройстве, повторю позже.','err');})
