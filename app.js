@@ -140,7 +140,7 @@ window.RFSync=(function(){
  function ui(){var on=!!code;var a=$('#syncOn'),b=$('#syncOff');if(!a)return;a.hidden=!on;b.hidden=on;if(on)$('#syncCode').value=code;}
  function get(){return fetch(API+code+'?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw r.status;return r.text();}).then(function(t){t=(t||'').trim();if(!t)return null;try{return JSON.parse(t);}catch(e){return null;}});}
  function put(o){var x=JSON.parse(JSON.stringify(o));delete x.tab;delete x.hideDone;delete x.mode;
-  return fetch(API+code,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(x)}).then(function(r){if(!r.ok)throw r.status;});}
+  return fetch(API+code,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(x)}).then(function(r){if(!r.ok)throw r.status;});}
  function run(){if(!code)return Promise.resolve();if(busy){again=true;return Promise.resolve();}busy=true;st('Синхронизация…');
   var before=JSON.stringify(S);
   return get().then(function(rem){var m=mergeState(S,rem);m.tab=S.tab;m.hideDone=S.hideDone;m.mode=S.mode;var ch=JSON.stringify(m)!==before;S=m;norm();save(true);if(ch)all();
