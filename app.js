@@ -80,27 +80,27 @@ function init(){
  $('#resetBtn').onclick=function(){if(confirm('Удалить все данные? Сначала лучше сделать экспорт.')){S=def();save();all();toast('Данные сброшены');}};
  all();
 }
-function taskRow(id,text,own,del){
- var li=el('li',{'class':S.tasks[id]?'done':''});var lab=el('label',{'class':'check'});var cb=el('input',{type:'checkbox'});cb.checked=!!S.tasks[id];
+function taskRow(id,text,own,del,off,lbl){
+ var li=el('li',{'class':(S.tasks[id]?'done':'')+(off?' off':'')});var lab=el('label',{'class':'check'});var cb=el('input',{type:'checkbox'});cb.checked=!!S.tasks[id];if(off){cb.disabled=true;}
  cb.onchange=function(){if(cb.checked)S.tasks[id]=1;else delete S.tasks[id];save();renderTasks();};
- lab.appendChild(cb);var sp=el('span',null,text+' ');sp.appendChild(el('span',{'class':'tag'+(own==='Алексей'?' me':'')},own));lab.appendChild(sp);li.appendChild(lab);
+ lab.appendChild(cb);var sp=el('span',null,text+' ');sp.appendChild(el('span',{'class':'tag'+(own==='Алексей'?' me':'')},own));if(off&&lbl)sp.appendChild(el('span',{'class':'tag off-tag'},'Отложено — вернусь позже'));lab.appendChild(sp);li.appendChild(lab);
  if(del)li.appendChild(del);return li;}
 function renderTasks(){
  var G=window.RISEFIG_TASKS||[],box=$('#taskGroups');if(!box)return;box.innerHTML='';var tot=0,dn=0;
  box.classList.toggle('hide-done',!!S.hideDone);var hb=$('#hideDone');if(hb)hb.textContent=S.hideDone?'Показать выполненные':'Скрыть выполненные';
- var groups=G.map(function(g){return {id:g.id,title:g.title,owner:g.owner,note:g.note,rules:g.rules,sub:g.sub.slice()};});
+ var groups=G.map(function(g){return {disabled:g.disabled,id:g.id,title:g.title,owner:g.owner,note:g.note,rules:g.rules,sub:g.sub.slice()};});
  groups.push({id:'my',title:'Мои задачи',owner:'Алексей',sub:[]});
  S.myTasks.forEach(function(t,i){var g=groups.filter(function(x){return x.id===t.group;})[0]||groups[groups.length-1];
   var sg=g.sub.filter(function(s){return s.mine;})[0];if(!sg){sg={title:'Добавлено мной',mine:true,items:[]};g.sub.push(sg);}sg.items.push([t.id,t.text,t.owner||'Алексей',i]);});
  groups.forEach(function(g){if(g.id==='my'&&!g.sub.length)return;var gt=0,gd=0;
-  var c=el('section',{'class':'week tgroup'});var h=el('div',{'class':'ghead'});h.appendChild(el('h3',null,g.title));var cnt=el('span',{'class':'gcount'});h.appendChild(cnt);c.appendChild(h);
+  var c=el('section',{'class':'week tgroup'+(g.disabled?' off':'')});var h=el('div',{'class':'ghead'});h.appendChild(el('h3',null,g.title));if(g.disabled)h.appendChild(el('span',{'class':'tag off-tag'},'Отложено — вернусь позже'));var cnt=el('span',{'class':'gcount'});h.appendChild(cnt);c.appendChild(h);
   var pb=el('div',{'class':'progress small'});var bar=el('div',{'class':'gbar'});pb.appendChild(bar);c.appendChild(pb);
   if(g.note)c.appendChild(el('p',{'class':'note'},g.note));
   if(g.rules){var r=el('div',{'class':'note rules'});r.appendChild(el('b',null,'Правила: '));var ul0=el('ul');[].concat(g.rules).forEach(function(x){ul0.appendChild(el('li',null,x));});r.appendChild(ul0);c.appendChild(r);}
   g.sub.forEach(function(sg){c.appendChild(el('h4',null,sg.title));var ul=el('ul',{'class':'tlist'});
-   sg.items.forEach(function(it){gt++;if(S.tasks[it[0]])gd++;var del=null;
+   sg.items.forEach(function(it){var off=!!g.disabled||(window.RISEFIG_DISABLED_TASKS||[]).indexOf(it[0])>=0;if(!off){gt++;if(S.tasks[it[0]])gd++;}var del=null;
     if(sg.mine){var idx=it[3];del=delBtn(S.myTasks,idx,function(){delete S.tasks[it[0]];save();renderTasks();});}
-    ul.appendChild(taskRow(it[0],it[1],it[2]||g.owner,del));});
+    ul.appendChild(taskRow(it[0],it[1],it[2]||g.owner,del,off,!g.disabled));});
    c.appendChild(ul);});
   cnt.textContent=gd+' / '+gt;bar.style.width=(gt?gd/gt*100:0)+'%';if(gt&&gd===gt)c.classList.add('done');
   tot+=gt;dn+=gd;box.appendChild(c);});
