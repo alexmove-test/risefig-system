@@ -69,3 +69,9 @@ input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border
 .tlist .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px}
 .hide-done .tlist li.done{display:none}
 @media (max-width:560px){.tab{padding:6px 10px;font-size:13px}}
+
+.tgroup.off h3,.tgroup.off h4,.tgroup.off .note,.tgroup.off .tlist li label span:not(.off-tag),li.off label span:not(.off-tag){text-decoration:line-through}
+.tgroup.off,li.off{opacity:.5;filter:grayscale(1)}
+.tgroup.off input,li.off input{pointer-events:none}
+.tgroup.off .progress{display:none}
+.off-tag{text-decoration:none!important;background:#888!important;color:#fff!important;margin-left:6px}
